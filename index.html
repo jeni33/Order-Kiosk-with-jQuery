@@ -15,15 +15,12 @@
         text-align: center;
         margin-bottom: 20px;
       }
-
       .category-title {
         margin-top: 30px;
         color: #d01012;
         font-weight: bold;
         border-bottom: 2px solid #f1c40f;
       }
-
-      /* CART CONTAINER */
       .receipt-box {
         border: 2px solid #f1c40f;
         padding: 10px;
@@ -34,13 +31,28 @@
         transition: box-shadow 0.3s ease;
       }
       .cart-title {
-        font-size: 1.6rem;         /* You can change to 1.5rem or 1.4rem if it's too big */
+        font-size: 1.6rem;         
         font-weight: 700;
-        color: #d01012;            /* Strong red for branding */
-        margin-top: 10px;          /* Adjust this to align with "Breakfast" */
+        color: #d01012;         
+        margin-top: 10px;
         margin-bottom: 18px;
         padding-left: 10px;
         letter-spacing: 0.5px;
+      }
+      #order-type-section {
+        max-width: 400px;
+        margin: 0 auto;
+        background-color: #fff8e1;
+        border: 2px dashed #ffc107;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      #order-type-section label {
+        font-size: 1rem;
+      }
+      #order-type-section .form-check-label {
+        font-weight: bold;
+        margin-left: 4px;
       }
     </style>
   </head>
@@ -51,12 +63,11 @@
         <h1 class="fw-bold">
           <span style="color: #d9230f;">McDonaldo</span><span style="color: #ffc107;">Menu</span></h1>
       </div>
-
         <div class="row">
-          <!-- Left Side: Menu -->
+         
           <div class="col-lg-8">
             <div id="menu">
-              <!-- Categories Loop Start -->
+             
               <section1>
                 <h4 class="category-title">Breakfast</h4>
                 <div class="row">
@@ -86,7 +97,6 @@
                   </div>
                 </div>
               </section1>
-
               <section2>
                 <h4 class="category-title">Burgers</h4>
                 <div class="row">
@@ -116,7 +126,6 @@
                   </div>
                 </div>
               </section2>
-
               <section3>
                 <h4 class="category-title">Chicken & Platters</h4>
                 <div class="row">
@@ -146,7 +155,6 @@
                   </div>
                 </div>
               </section3>
-
               <section4>
                 <h4 class="category-title">Fries</h4>
                 <div class="row">
@@ -176,7 +184,6 @@
                   </div>
                 </div>
               </section4>
-
               <section5>
                 <h4 class="category-title">Drinks & Dessert</h4>
                 <div class="row">
@@ -206,7 +213,6 @@
                   </div>
                 </div>
               </section5>
-
               <section6>
                 <h4 class="category-title">McCafe</h4>
                 <div class="row">
@@ -236,16 +242,27 @@
                   </div>
                 </div>
               </section6>
-              <!-- Categories Loop End -->
             </div>
           </div>
-
-        <!-- Right Side: Cart -->
+       
         <div class="col-lg-4 mt-4 mt-lg-0">
           <div class="receipt-box p-3 bg-white rounded shadow-sm">
             <h4 class="cart-title text-center">Cart</h4>
+            
             <ul id="receipt-items" class="list-unstyled"></ul>
             <p id="total" class="fw-bold">Total: ₱0.00</p>
+
+            <div id="order-type-section" class="mb-3 p-2 border rounded bg-light">
+              <label class="form-label fw-bold text-danger">Order Type:</label><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="orderType" id="dineIn" value="Dine-In">
+                <label class="form-check-label" for="dineIn">Dine-In</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="orderType" id="takeOut" value="Take-Out">
+                <label class="form-check-label" for="takeOut">Take-Out</label>
+              </div>
+            </div>
 
             <div class="mb-2">
               <label class="form-label">Payment Method:</label>
@@ -256,140 +273,143 @@
               <input type="number" class="form-control mb-2" id="payment-amount" placeholder="Enter payment amount">
               <p id="change" class="fw-bold" style="display: none;">Change: ₱0.00</p>
             </div>
-
-            <button class="btn btn-danger w-100" id="print-receipt">Pay Order</button>
+            <button class="btn btn-danger w-100" id="print-receipt" disabled>Pay Order</button>
           </div>
         </div>
-
-
       </div>
     </div>
 
     <script>
-        let total = 0;
-        $(document).on("click", ".add-to-cart", function () {
-          const item = $(this).closest(".menu-item");
-          const name = item.data("name");
-          const price = parseFloat(item.data("price"));
-          const qty = parseInt(item.find(".quantity").val());
-
-          if (qty < 1 || isNaN(qty)) {
-            alert("Please enter a valid quantity.");
-            return;
-          }
-
-          const subtotal = price * qty;
-
-          const listItem = $(`
-            <li class="d-flex justify-content-between align-items-center border-bottom py-1">
-              <span>${name} x ${qty} = ₱${subtotal.toFixed(2)}</span>
-              <button class="btn btn-sm btn-danger remove-item" data-subtotal="${subtotal}">✖</button>
-            </li>
-          `);
-
-          $("#receipt-items").append(listItem);
-          total += subtotal;
-          updateTotal();
-        });
-
-        $(document).on("click", ".remove-item", function () {
-          const subtotal = parseFloat($(this).data("subtotal"));
-          total -= subtotal;
-          $(this).parent().remove();
-          updateTotal();
-        });
-
-        function updateTotal() {
-          $("#total").text(`Total: ₱${total.toFixed(2)}`);
+      let total = 0;
+      
+      $(".add-to-cart, #print-receipt").prop("disabled", true);
+    
+      $("input[name='orderType']").on("change", function () {
+        $(".add-to-cart, #print-receipt").prop("disabled", false);
+      });
+    
+      $(document).on("click", ".add-to-cart", function () {
+        const item = $(this).closest(".menu-item");
+        const name = item.data("name");
+        const price = parseFloat(item.data("price"));
+        const qty = parseInt(item.find(".quantity").val());
+    
+        if (qty < 1 || isNaN(qty)) {
+          alert("Please enter a valid quantity.");
+          return;
         }
-
-        // 🧾 Pay and Print Receipt
-        $("#print-receipt").on("click", function () {
-          const now = new Date();
-          const formattedDate = now.toLocaleString('en-PH', {
-            dateStyle: 'short',
-            timeStyle: 'short',
-          });
-
-          const paymentMethod = $("#payment-method").val();
-          const paymentAmount = parseFloat($("#payment-amount").val());
-
-          if (isNaN(paymentAmount) || paymentAmount < total) {
-            alert("Invalid or insufficient payment.");
-            return;
-          }
-
-          const change = paymentAmount - total;
-
-          const receiptItems = $("#receipt-items li").map(function () {
-            const text = $(this).contents().map(function () {
-              return this.nodeType === 3 ? this.textContent : $(this).text();
-            }).get().join('').trim();
-
-            const match = text.match(/(.+?) x (\d+) = ₱([\d.]+)/);
-            if (match) {
-              const [, item, qty, sub] = match;
-              return `
-                <tr>
-                  <td>${item}</td>
-                  <td style="text-align:center;">${qty}</td>
-                  <td style="text-align:right;">₱${parseFloat(sub).toFixed(2)}</td>
-                </tr>`;
-            }
-            return "";
-          }).get().join("");
-
-          const receiptHTML = `
-            <div style="font-family: Arial, sans-serif; max-width: 350px; margin: auto; padding: 20px; border-radius: 8px;">
-              <div style="text-align: center;">
-                <h2 style="color: #d9230f;">Mc<span style="color:#ffc107;">Donaldo</span></h2>
-                <p>Receipt</p>
-                <p style="font-size: 12px;">${formattedDate}</p>
-              </div>
-              <hr>
-                <table style="width:100%; font-size: 14px;">
-                  <thead>
-                    <tr>
-                      <th style="text-align:left;">Item</th>
-                      <th>Qty</th>
-                      <th style="text-align:right;">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${receiptItems}
-                  </tbody>
-                </table>
-              <hr>
-                <p style="text-align:right;">Total: <strong>₱${total.toFixed(2)}</strong></p>
-                <p style="text-align:right;">${paymentMethod === 'cash' ? 'Cash' : 'Card'}: <strong>₱${paymentAmount.toFixed(2)}</strong></p>
-                <p style="text-align:right;">Change: <strong>₱${change.toFixed(2)}</strong></p>
-              <hr>
-              <p style="text-align:center; color: #ffc107; font-weight: bold;">Thank you for ordering!</p>
-            </div>
-          `;
-
-          // Print in new window
-          const printWindow = window.open("", "_blank");
-          printWindow.document.write(`
-            <html>
-              <head>
-                <title>Receipt</title>
-              </head>
-              <body>
-                ${receiptHTML}
-              </body>
-            </html>
-          `);
-          printWindow.document.close();
-          printWindow.print();
-
-          // Reset cart after printing
-          $("#receipt-items").empty();
-          $("#payment-amount").val("");
-          $("#change").text("").hide();
-          total = 0;
-          updateTotal();
+    
+        const subtotal = price * qty;
+    
+        const listItem = $(`
+          <li class="d-flex justify-content-between align-items-center border-bottom py-1">
+            <span>${name} x ${qty} = ₱${subtotal.toFixed(2)}</span>
+            <button class="btn btn-sm btn-danger remove-item" data-subtotal="${subtotal}">✖</button>
+          </li>
+        `);
+    
+        $("#receipt-items").append(listItem);
+        total += subtotal;
+        updateTotal();
+      });
+    
+      $(document).on("click", ".remove-item", function () {
+        const subtotal = parseFloat($(this).data("subtotal"));
+        total -= subtotal;
+        $(this).parent().remove();
+        updateTotal();
+      });
+    
+      function updateTotal() {
+        $("#total").text(`Total: ₱${total.toFixed(2)}`);
+      }
+    
+      $("#print-receipt").on("click", function () {
+        const now = new Date();
+        const formattedDate = now.toLocaleString('en-PH', {
+          dateStyle: 'short',
+          timeStyle: 'short',
         });
-    </script>
+    
+        const paymentMethod = $("#payment-method").val();
+        const paymentAmount = parseFloat($("#payment-amount").val());
+    
+        if (isNaN(paymentAmount) || paymentAmount < total) {
+          alert("Invalid or insufficient payment.");
+          return;
+        }
+    
+        const change = paymentAmount - total;
+    
+        const receiptItems = $("#receipt-items li").map(function () {
+          const text = $(this).contents().map(function () {
+            return this.nodeType === 3 ? this.textContent : $(this).text();
+          }).get().join('').trim();
+    
+          const match = text.match(/(.+?) x (\d+) = ₱([\d.]+)/);
+          if (match) {
+            const [, item, qty, sub] = match;
+            return `
+              <tr>
+                <td>${item}</td>
+                <td style="text-align:center;">${qty}</td>
+                <td style="text-align:right;">₱${parseFloat(sub).toFixed(2)}</td>
+              </tr>`;
+          }
+          return "";
+        }).get().join("");
+    
+        const selectedOrderType = $("input[name='orderType']:checked").val() || "N/A";
+    
+        const receiptHTML = `
+          <div style="font-family: Arial, sans-serif; max-width: 350px; margin: auto; padding: 20px; border-radius: 8px;">
+            <div style="text-align: center;">
+              <h2 style="color: #d9230f;">Mc<span style="color:#ffc107;">Donaldo</span></h2>
+              <p>Receipt</p>
+              <p style="font-size: 12px;">${formattedDate}</p>
+              <p style="font-size: 12px;"><strong>Order Type:</strong> ${selectedOrderType}</p>
+            </div>
+            <hr>
+            <table style="width:100%; font-size: 14px;">
+              <thead>
+                <tr>
+                  <th style="text-align:left;">Item</th>
+                  <th>Qty</th>
+                  <th style="text-align:right;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${receiptItems}
+              </tbody>
+            </table>
+            <hr>
+            <p style="text-align:right;">Total: <strong>₱${total.toFixed(2)}</strong></p>
+            <p style="text-align:right;">${paymentMethod === 'cash' ? 'Cash' : 'Card'}: <strong>₱${paymentAmount.toFixed(2)}</strong></p>
+            <p style="text-align:right;">Change: <strong>₱${change.toFixed(2)}</strong></p>
+            <hr>
+            <p style="text-align:center; color: #ffc107; font-weight: bold;">Thank you for ordering!</p>
+          </div>
+        `;
+
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+          <html>
+            <head><title>Receipt</title></head>
+            <body>${receiptHTML}</body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+        
+        $("#receipt-items").empty();
+        $("#payment-amount").val("");
+        $("#change").text("").hide();
+        total = 0;
+        updateTotal();
+       
+        $(".add-to-cart, #print-receipt").prop("disabled", true);
+        $("input[name='orderType']").prop("checked", false); 
+      });
+    </script>   
   </body>
 </html>
